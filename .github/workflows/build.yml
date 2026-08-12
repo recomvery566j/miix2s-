@@ -115,6 +115,14 @@ jobs:
           ref: mainline
           path: upstream_repo
 
+      - name: Setup Compile Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-kernel-ccache-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-kernel-ccache-
+
       - name: Sync upstream resources
         run: |
           cp -r upstream_repo/Patches ./
