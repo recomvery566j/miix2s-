@@ -5,6 +5,12 @@ on:
   workflow_dispatch:
 
 env:
+  # 自定义内核编译时间变量 (支持标准日期格式)
+  KBUILD_BUILD_TIMESTAMP: "2026-08-5 12:00:00"
+  # 自定义编译者与主机名伪装 (可选)
+  KBUILD_BUILD_USER: "builder"
+  KBUILD_BUILD_HOST: "mi-server"
+
   DEVICE_NAME : "xiaomi_mix2s"
   DEVICE_CODENAME : "polaris"
 
@@ -145,6 +151,11 @@ jobs:
           echo "CONFIG_EROFS_FS_XATTR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_EROFS_FS_POSIX_ACL=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_EROFS_FS_SECURITY=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
+          
+          git config --global user.email "bot@github.actions"
+          git config --global user.name "GitHub Actions"
+          git add .
+          git commit -m "Inject custom parameters to resolve dirty flag"
 
       - name: Patch Kernel of Re:Kernel
         uses: ./upstream_repo/.github/workflows/patch-rekernel
