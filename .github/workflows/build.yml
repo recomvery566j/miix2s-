@@ -109,6 +109,12 @@ jobs:
           ref: mainline
           path: upstream_repo
 
+      - name: Sync upstream resources
+        run: |
+          cp -r upstream_repo/Patches ./
+          cp -r upstream_repo/Bin ./
+          chmod -R +x ./Bin/
+
       - name: Compilation environment preparation
         uses: ./upstream_repo/.github/workflows/build-env
 
