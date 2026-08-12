@@ -118,15 +118,18 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           
-          cp $GITHUB_WORKSPACE/custom_repo/gpucc-sdm845.c drivers/clk/qcom/gpucc-sdm845.c
-          cp $GITHUB_WORKSPACE/custom_repo/sdm845-v2.dtsi arch/arm64/boot/dts/qcom/sdm845-v2.dtsi
-          cp $GITHUB_WORKSPACE/custom_repo/vdd-level-sdm845.h drivers/clk/qcom/vdd-level-sdm845.h
+          # 补充 Custom_Files 目录层级，进行精确覆盖
+          cp $GITHUB_WORKSPACE/custom_repo/Custom_Files/gpucc-sdm845.c drivers/clk/qcom/gpucc-sdm845.c
+          cp $GITHUB_WORKSPACE/custom_repo/Custom_Files/sdm845-v2.dtsi arch/arm64/boot/dts/qcom/sdm845-v2.dtsi
+          cp $GITHUB_WORKSPACE/custom_repo/Custom_Files/vdd-level-sdm845.h drivers/clk/qcom/vdd-level-sdm845.h
           
+          # 写入核心编译配置
           echo "CONFIG_COMPAT_VDSO=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_LTO_NONE=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_SHADOW_CALL_STACK=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_RELR=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           
+          # EROFS配置
           echo "CONFIG_EROFS_FS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_EROFS_FS_ZIP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_EROFS_FS_XATTR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
