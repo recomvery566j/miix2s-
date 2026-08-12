@@ -97,59 +97,63 @@ jobs:
       CCACHE_HARDLINK: "true"
 
     steps:
-      * name: Checkout custom repository
+      - name: Checkout custom repository
         uses: actions/checkout@v4
         with:
           path: custom_repo
 
-      * name: Compilation environment preparation
-        uses: JackA1ltman/NonGKI_Kernel_Build_2nd/.github/workflows/build-env@mainline
+      - name: Checkout upstream repository
+        uses: actions/checkout@v4
+        with:
+          repository: JackA1ltman/NonGKI_Kernel_Build_2nd
+          ref: mainline
+          path: upstream_repo
 
-      * name: Get neccssary tools
-        uses: JackA1ltman/NonGKI_Kernel_Build_2nd/.github/workflows/build-ready@mainline
+      - name: Compilation environment preparation
+        uses: ./upstream_repo/.github/workflows/build-env
 
-      * name: Patch Kernel of SUSFS
-        uses: JackA1ltman/NonGKI_Kernel_Build_2nd/.github/workflows/patch-susfs@mainline
+      - name: Get neccssary tools
+        uses: ./upstream_repo/.github/workflows/build-ready
 
-      * name: Patch for no-kprobe
-        uses: JackA1ltman/NonGKI_Kernel_Build_2nd/.github/workflows/patch-no-kprobe@mainline
+      - name: Patch Kernel of SUSFS
+        uses: ./upstream_repo/.github/workflows/patch-susfs
 
-      * name: Extra Kernel Options
+      - name: Patch for no-kprobe
+        uses: ./upstream_repo/.github/workflows/patch-no-kprobe
+
+      - name: Extra Kernel Options
         run: |
           cd $GITHUB_WORKSPACE/device_kernel
           
-          # 补充 Custom_Files 目录层级，进行精确覆盖
           cp $GITHUB_WORKSPACE/custom_repo/Custom_Files/gpucc-sdm845.c drivers/clk/qcom/gpucc-sdm845.c
           cp $GITHUB_WORKSPACE/custom_repo/Custom_Files/sdm845-v2.dtsi arch/arm64/boot/dts/qcom/sdm845-v2.dtsi
           cp $GITHUB_WORKSPACE/custom_repo/Custom_Files/vdd-level-sdm845.h drivers/clk/qcom/vdd-level-sdm845.h
           
-          # 写入核心编译配置
           echo "CONFIG_COMPAT_VDSO=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_LTO_NONE=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_SHADOW_CALL_STACK=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_RELR=n" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           
-          # EROFS配置
           echo "CONFIG_EROFS_FS=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_EROFS_FS_ZIP=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_EROFS_FS_XATTR=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_EROFS_FS_POSIX_ACL=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
           echo "CONFIG_EROFS_FS_SECURITY=y" >> ./arch/arm64/configs/${{ env.DEFCONFIG_NAME }}
 
-      * name: Patch Kernel of Re:Kernel
-        uses: JackA1ltman/NonGKI_Kernel_Build_2nd/.github/workflows/patch-rekernel@mainline
+      - name: Patch Kernel of Re:Kernel
+        uses: ./upstream_repo/.github/workflows/patch-rekernel
 
-      * name: Patch Kernel of Droidspaces
-        uses: JackA1ltman/NonGKI_Kernel_Build_2nd/.github/workflows/patch-droidspaces@mainline
+      - name: Patch Kernel of Droidspaces
+        uses: ./upstream_repo/.github/workflows/patch-droidspaces
 
-      * name: Patch Kernel of Baseband Guard
-        uses: JackA1ltman/NonGKI_Kernel_Build_2nd/.github/workflows/patch-baseband-guard@mainline
+      - name: Patch Kernel of Baseband Guard
+        uses: ./upstream_repo/.github/workflows/patch-baseband-guard
 
-      * name: Build Process
-        uses: JackA1ltman/NonGKI_Kernel_Build_2nd/.github/workflows/build-process@mainline
+      - name: Build Process
+        uses: ./upstream_repo/.github/workflows/build-process
 
-      * name: Pack Process
-        uses: JackA1ltman/NonGKI_Kernel_Build_2nd/.github/workflows/pack-process@mainline
+      - name: Pack Process
+        uses: ./upstream_repo/.github/workflows/pack-process
 
-      * name: Upload Artifacts
-        uses: JackA1ltman/NonGKI_Kernel_Build_2nd/.github/workflows/upload-files@mainline
+      - name: Upload Artifacts
+        uses: ./upstream_repo/.github/workflows/upload-files
