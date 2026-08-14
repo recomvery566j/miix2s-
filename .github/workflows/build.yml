@@ -5,7 +5,9 @@ on:
   workflow_dispatch:
 
 env:
+  # 自定义内核编译时间变量 (支持标准日期格式)
   KBUILD_BUILD_TIMESTAMP: "2026-08-5 12:00:00"
+  # 自定义编译者与主机名伪装 (可选)
   KBUILD_BUILD_USER: "builder"
   KBUILD_BUILD_HOST: "mi-server"
 
@@ -113,40 +115,16 @@ jobs:
           ref: mainline
           path: upstream_repo
 
-      - name: Checkout zeromount repository
-        uses: actions/checkout@v4
-        with:
-          repository: enginex0/zeromount
-          path: zeromount
-
-      - name: Setup Compile Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.ccache
-          key: ${{ runner.os }}-kernel-ccache-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-kernel-ccache-
-
       - name: Sync upstream resources
         run: |
           cp -r upstream_repo/Patches ./
           cp -r upstream_repo/Bin ./
           chmod -R +x ./Bin/
-
       - name: Compilation environment preparation
         uses: ./upstream_repo/.github/workflows/build-env
 
       - name: Get neccssary tools
         uses: ./upstream_repo/.github/workflows/build-ready
-
-      - name: Setup Rust Toolchain for zeromount
-        uses: dtolnay/rust-toolchain@nightly
-        with:
-          targets: aarch64-unknown-none
-          components: rust-src
-
-      - name: Install bindgen-cli
-        run: cargo install bindgen-cli
 
       - name: Patch Kernel of SUSFS
         uses: ./upstream_repo/.github/workflows/patch-susfs
@@ -177,7 +155,6 @@ jobs:
           git config --global user.name "GitHub Actions"
           git add .
           git commit -m "Inject custom parameters to resolve dirty flag"
-
       - name: Patch Kernel of Re:Kernel
         uses: ./upstream_repo/.github/workflows/patch-rekernel
 
@@ -190,29 +167,8 @@ jobs:
       - name: Build Process
         uses: ./upstream_repo/.github/workflows/build-process
 
-      - name: Build and Pack zeromount LKM
-        run: |
-          cd $GITHUB_WORKSPACE/zeromount
-          export KERNEL_DIR=$GITHUB_WORKSPACE/device_kernel
-          export CROSS_COMPILE=aarch64-linux-gnu-
-          export CC=clang
-          export LLVM=1
-          
-          make
-          
-          mkdir -p release
-          cp *.ko module/
-          cd module
-          zip -r9 ../release/zeromount-module.zip ./*
-
       - name: Pack Process
         uses: ./upstream_repo/.github/workflows/pack-process
 
       - name: Upload Artifacts
         uses: ./upstream_repo/.github/workflows/upload-files
-
-      - name: Upload zeromount Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: zeromount-module
-          path: ${{ github.workspace }}/zeromount/release/zeromount-module.zip
