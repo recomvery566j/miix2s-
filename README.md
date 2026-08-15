@@ -9,7 +9,7 @@ This repository provides an automated build pipeline for compiling a custom Andr
 * Automated CI/CD compilation via GitHub Actions [cite: 1].
 * Injection of custom Device Tree Source Include (DTSI) configurations for SDM845 [cite: 1].
 * Modification of GPU clock frequencies and voltage tables [cite: 1].
-* KernelSU and SUSFS integration for root and file system access.
+* resukisu and SUSFS integration for root and file system access.
 * Automated patching of hardware controller scripts.
 
 ### Repository Structure
@@ -33,7 +33,7 @@ This repository provides an automated build pipeline for compiling a custom Andr
 * 通过 GitHub Actions 实现自动化 CI/CD 编译 [cite: 1]。
 * 针对 SDM845 注入自定义设备树 (DTSI) 配置 [cite: 1]。
 * 修改 GPU 时钟频率与电压表 [cite: 1]。
-* 集成 KernelSU 与 SUSFS 以获取 Root 权限与文件系统访问控制。
+* 集成 resukisu 与 SUSFS 以获取 Root 权限与文件系统访问控制。
 * 自动修补硬件控制器脚本。
 
 ### 仓库结构
